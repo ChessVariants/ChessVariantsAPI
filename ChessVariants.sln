@@ -26,6 +26,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChessVariantsAPI.Tests", "ChessVariantsAPI.Tests\ChessVariantsAPI.Tests.csproj", "{9DAFDB32-DFBF-47A5-ABF5-37231773D783}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataAccess.MongoDB", "DataAccess.MongoDB\DataAccess.MongoDB.csproj", "{421DDAC7-6D0B-4BD1-8013-7C18D13FC669}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -48,6 +50,10 @@ Global
 		{9DAFDB32-DFBF-47A5-ABF5-37231773D783}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9DAFDB32-DFBF-47A5-ABF5-37231773D783}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9DAFDB32-DFBF-47A5-ABF5-37231773D783}.Release|Any CPU.Build.0 = Release|Any CPU
+		{421DDAC7-6D0B-4BD1-8013-7C18D13FC669}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{421DDAC7-6D0B-4BD1-8013-7C18D13FC669}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{421DDAC7-6D0B-4BD1-8013-7C18D13FC669}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{421DDAC7-6D0B-4BD1-8013-7C18D13FC669}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -57,6 +63,7 @@ Global
 		{F20F8B1B-D3C8-4795-866B-5D52E75E95F8} = {E05C37F4-5E64-4EE7-BF9A-E882C8925425}
 		{C0D6E8C8-5277-4C12-9E8D-F518289A95EF} = {E05C37F4-5E64-4EE7-BF9A-E882C8925425}
 		{9DAFDB32-DFBF-47A5-ABF5-37231773D783} = {12000BF7-323A-438B-956E-A27EEE3658D7}
+		{421DDAC7-6D0B-4BD1-8013-7C18D13FC669} = {E936EC73-C31F-42BF-BCBC-AE6C24963DF1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {705A729B-BCC8-4D2F-90F5-767B8425E793}
