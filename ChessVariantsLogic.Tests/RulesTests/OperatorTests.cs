@@ -1,6 +1,7 @@
 using Xunit;
-using ChessVariantsLogic.Predicates;
 using System;
+using ChessVariantsLogic.Rules.Predicates;
+using ChessVariantsLogic.Rules;
 
 namespace ChessVariantsLogic.Tests;
 
@@ -8,13 +9,15 @@ public class OperatorTests : IDisposable {
 
     IPredicate constTrue;
     IPredicate constFalse;
-    IBoardState board;
+    MoveWorker board;
+    BoardTransition transition;
 
     public OperatorTests()
     {
         constTrue = new Const(true);
         constFalse = new Const(false);
         board = new MoveWorker(new Chessboard(8));
+        transition = new BoardTransition(board, board, "a1a1");
     }
 
     public void Dispose()
@@ -27,7 +30,7 @@ public class OperatorTests : IDisposable {
     public void OperatorAND_shouldReturnTrue()
     {
         var op = new Operator(constTrue, OperatorType.AND, constTrue);
-        Assert.True(op.Evaluate(board, board));
+        Assert.True(op.Evaluate(transition));
     }
 
     [Fact]
@@ -35,8 +38,8 @@ public class OperatorTests : IDisposable {
     {
         var op1 = new Operator(constTrue, OperatorType.AND, constFalse);
         var op2 = new Operator(constFalse, OperatorType.AND, constFalse);
-        Assert.False(op1.Evaluate(board, board));
-        Assert.False(op2.Evaluate(board, board));
+        Assert.False(op1.Evaluate(transition));
+        Assert.False(op2.Evaluate(transition));
     }
 
     [Fact]
@@ -45,16 +48,16 @@ public class OperatorTests : IDisposable {
         var op = new Operator(constTrue, OperatorType.OR, constTrue);
         var op1 = new Operator(constTrue, OperatorType.OR, constFalse);
         var op2 = new Operator(constFalse, OperatorType.OR, constTrue);
-        Assert.True(op.Evaluate(board, board));
-        Assert.True(op1.Evaluate(board, board));
-        Assert.True(op2.Evaluate(board, board));
+        Assert.True(op.Evaluate(transition));
+        Assert.True(op1.Evaluate(transition));
+        Assert.True(op2.Evaluate(transition));
     }
 
     [Fact]
     public void OperatorOR_shouldReturnFalse()
     {
         var op = new Operator(constFalse, OperatorType.OR, constFalse);
-        Assert.False(op.Evaluate(board, board));
+        Assert.False(op.Evaluate(transition));
     }
 
     [Fact]
@@ -63,16 +66,16 @@ public class OperatorTests : IDisposable {
         var op = new Operator(constTrue, OperatorType.IMPLIES, constTrue);
         var op1 = new Operator(constFalse, OperatorType.IMPLIES, constTrue);
         var op2 = new Operator(constFalse, OperatorType.IMPLIES, constFalse);
-        Assert.True(op.Evaluate(board, board));
-        Assert.True(op1.Evaluate(board, board));
-        Assert.True(op2.Evaluate(board, board));
+        Assert.True(op.Evaluate(transition));
+        Assert.True(op1.Evaluate(transition));
+        Assert.True(op2.Evaluate(transition));
     }
 
     [Fact]
     public void OperatorIMPLIES_shouldReturnFalse()
     {
         var op = new Operator(constTrue, OperatorType.IMPLIES, constFalse);
-        Assert.False(op.Evaluate(board, board));
+        Assert.False(op.Evaluate(transition));
     }
 
     [Fact]
@@ -80,8 +83,8 @@ public class OperatorTests : IDisposable {
     {
         var op = new Operator(constTrue, OperatorType.XOR, constFalse);
         var op1 = new Operator(constFalse, OperatorType.XOR, constTrue);
-        Assert.True(op.Evaluate(board, board));
-        Assert.True(op1.Evaluate(board, board));
+        Assert.True(op.Evaluate(transition));
+        Assert.True(op1.Evaluate(transition));
     }
 
     [Fact]
@@ -89,8 +92,8 @@ public class OperatorTests : IDisposable {
     {
         var op = new Operator(constTrue, OperatorType.XOR, constTrue);
         var op1 = new Operator(constFalse, OperatorType.XOR, constFalse);
-        Assert.False(op.Evaluate(board, board));
-        Assert.False(op1.Evaluate(board, board));
+        Assert.False(op.Evaluate(transition));
+        Assert.False(op1.Evaluate(transition));
     }
 
     [Fact]
@@ -98,8 +101,8 @@ public class OperatorTests : IDisposable {
     {
         var op = new Operator(constTrue, OperatorType.EQUALS, constTrue);
         var op1 = new Operator(constFalse, OperatorType.EQUALS, constFalse);
-        Assert.True(op.Evaluate(board, board));
-        Assert.True(op1.Evaluate(board, board));
+        Assert.True(op.Evaluate(transition));
+        Assert.True(op1.Evaluate(transition));
     }
 
     [Fact]
@@ -107,22 +110,22 @@ public class OperatorTests : IDisposable {
     {
         var op = new Operator(constTrue, OperatorType.EQUALS, constFalse);
         var op1 = new Operator(constFalse, OperatorType.EQUALS, constTrue);
-        Assert.False(op.Evaluate(board, board));
-        Assert.False(op1.Evaluate(board, board));
+        Assert.False(op.Evaluate(transition));
+        Assert.False(op1.Evaluate(transition));
     }
 
     [Fact]
     public void OperatorNOT_shouldReturnTrue()
     {
         var op = new Operator(OperatorType.NOT, constFalse);
-        Assert.True(op.Evaluate(board, board));
+        Assert.True(op.Evaluate(transition));
     }
 
     [Fact]
     public void OperatorNOT_shouldReturnFalse()
     {
         var op = new Operator(OperatorType.NOT, constTrue);
-        Assert.False(op.Evaluate(board, board));
+        Assert.False(op.Evaluate(transition));
     }
 
     [Fact]

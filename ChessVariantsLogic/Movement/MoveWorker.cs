@@ -4,7 +4,7 @@ using System;
 /// <summary>
 /// Retrieves and performs valid moves on a given Chessboard.
 /// </summary>
-public class MoveWorker : IBoardState
+public class MoveWorker
 {
 
 #region Fields, properties and constructors
@@ -18,7 +18,15 @@ public class MoveWorker : IBoardState
         set { this.board = value; }
     }
 
+
     private readonly Dictionary<string, Piece> stringToPiece;
+
+    private readonly Stack<string> movelog = new Stack<string>();
+
+    public Stack<string> Movelog
+    {
+        get { return this.movelog; }
+    }
     
     /// <summary>
     /// Constructor that takes a Chessboard and a HashSet of Piece
@@ -62,10 +70,49 @@ public class MoveWorker : IBoardState
                 {
                     this.board.Insert(strPiece, to);
                     this.board.Insert(Constants.UnoccupiedSquareIdentifier, from);
+                    this.board.PieceHasMoved(coor.Item1,coor.Item2);
+                    movelog.Push(move);
                     return GameEvent.MoveSucceeded;
                 }
             }
             catch (KeyNotFoundException) {}
+        }
+        return GameEvent.InvalidMove;
+
+    }
+    /// <summary>
+    /// Updates the chessboard by forcefully moving the square from the first coordinate to the last coordinate in move. The first coordinate will be marked as unoccupied.
+    /// This does not take into account whether or not this is a valid move for the piece.
+    /// </summary>
+    /// <param name="move"> consists of two coordinates without any space between them. </param>
+    /// <returns> A GameEvent representing whether the move was successful or not. </returns>
+    public GameEvent ForceMove(string move)
+    {
+        var splitMove = parseMove(move);
+        if (splitMove == null)
+            return GameEvent.InvalidMove;
+
+        string from = splitMove.Item1;
+        string to = splitMove.Item2;
+
+        string? strPiece = this.board.GetPieceIdentifier(from);
+        if (strPiece != null)
+        {
+            try
+            {
+                Piece piece = stringToPiece[strPiece];
+                var moves = getAllValidMovesByPiece(piece, this.board.CoorToIndex[from]);
+                var coor = this.board.ParseCoordinate(to);
+                if (coor != null)
+                {
+                    this.board.Insert(strPiece, to);
+                    this.board.Insert(Constants.UnoccupiedSquareIdentifier, from);
+                    this.board.PieceHasMoved(coor.Item1,coor.Item2);
+                    movelog.Push(move);
+                    return GameEvent.MoveSucceeded;
+                }
+            }
+            catch (KeyNotFoundException) { }
         }
         return GameEvent.InvalidMove;
 
@@ -400,8 +447,126 @@ public class MoveWorker : IBoardState
             return null;
         
         return new Tuple<int,int>(newRow, newCol); 
-
     }
+
+    /// <summary>
+    /// Gets all valid capture moves to empty squares for a given player.
+    /// </summary>
+    /// <param name="player"> is the player whose moves should be calculated. </param>
+    /// <returns>an iterable collection of all valid capture moves.</returns>
+    public HashSet<string> GetAllCaptureMoves(Player player)
+    {
+        var coorMoves = new HashSet<(Tuple<int,int>, Tuple<int,int>)>();
+
+        foreach (var coor in this.board.GetAllCoordinates())
+        {
+            int row = coor.Item1;
+            int col = coor.Item2;
+            var square = this.board.GetPieceIdentifier(row, col);
+
+            if(square == null || square.Equals(Constants.UnoccupiedSquareIdentifier))
+                continue;
+
+            Piece? p = null;
+            try
+            {
+                p = this.stringToPiece[square];
+            }
+            catch (KeyNotFoundException)
+            {
+                continue;
+            }
+
+            if(pieceBelongsToPlayer(p, player))
+            {
+                var startPosition = new Tuple<int,int>(row, col);
+                var legalMoves = getAllValidCaptureMovesByPiece(p, startPosition);
+                foreach (var pos in legalMoves)
+                {
+                    coorMoves.Add((startPosition, pos));
+                }
+            }
+        }
+        return coorSetToStringSet(coorMoves);
+    }
+
+    // Generates all capture moves for a piece.
+    private HashSet<Tuple<int, int>> getAllValidCaptureMovesByPiece(Piece piece, Tuple<int, int> pos)
+    {
+        var moves = new HashSet<Tuple<int, int>>();
+        var capturemoves = new HashSet<Tuple<int, int>>();
+
+        int repeat = piece.Repeat;
+
+
+        
+            foreach (var pattern in piece.GetAllCapturePatterns())
+            {
+                if (pattern is RegularPattern)
+                {
+                    capturemoves.UnionWith(getRegularMoves(piece, pattern, pos));
+                    capturemoves.UnionWith(getRegularCaptureMoves(piece, pattern, pos));
+                }
+                else
+                {
+                    capturemoves.UnionWith(getJumpMove(piece, pattern, pos));
+                    var captureMove = getJumpCaptureMove(piece, pattern, pos);
+                    if(captureMove == null)
+                        continue;
+                    capturemoves.Add(captureMove);
+                }
+            }
+
+
+
+            foreach (var pattern in piece.GetAllMovementPatterns())
+            {
+                if (pattern is RegularPattern)
+                    moves.UnionWith(getRegularMoves(piece, pattern, pos));
+                else
+                    moves.UnionWith(getJumpMove(piece, pattern, pos));
+            }
+
+
+            var movesTmp = moves.ToHashSet();
+
+
+            while (repeat >= 1)
+            {
+                foreach (var move in movesTmp)
+                {
+                    foreach (var pattern in piece.GetAllMovementPatterns())
+                    {
+                        if (pattern is RegularPattern)
+                            moves.UnionWith(getRegularMoves(piece, pattern, move));
+                        else
+                            moves.UnionWith(getJumpMove(piece, pattern, move));
+                    }
+                    foreach (var pattern in piece.GetAllCapturePatterns())
+                    {
+                        if (pattern is RegularPattern)
+                        {    
+                            capturemoves.UnionWith(getRegularMoves(piece, pattern, move));
+                            capturemoves.UnionWith(getRegularCaptureMoves(piece, pattern, pos));
+                        }
+                        else
+                        {
+                            capturemoves.UnionWith(getJumpMove(piece, pattern, move));
+                            var captureMove = getJumpCaptureMove(piece, pattern, pos);
+                            if(captureMove == null)
+                                continue;
+                            capturemoves.Add(captureMove);
+                        }
+                    }
+
+
+                }
+                movesTmp = moves;
+                repeat--;
+            }
+            return capturemoves;
+
+        }
 
 #endregion
 
@@ -460,11 +625,21 @@ public class MoveWorker : IBoardState
     /// <summary>
     /// Copies this move worker to a new move worker object
     /// </summary>
-    public IBoardState CopyBoardState()
+    public MoveWorker CopyBoardState()
     {
         Chessboard newBoard = board.CopyBoard();
         HashSet<Piece> newPieces = new HashSet<Piece>(pieces);
         return new MoveWorker(newBoard, newPieces);
+    }
+
+    /// <summary>
+    /// Returns the last move from the movelog
+    /// </summary>
+    public string? getLastMove()
+    {
+        if (movelog.Count == 0)
+            return null;
+        return movelog.Peek();
     }
 
     #endregion

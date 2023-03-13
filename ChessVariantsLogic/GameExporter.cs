@@ -27,12 +27,12 @@ public static class GameExporter
         };
     }
 
-    private static List<Move> ExportMoves(Dictionary<string, List<string>> moveDict)
+    private static List<MoveRecord> ExportMoves(Dictionary<string, List<string>> moveDict)
     {
-        var moves = new List<Move>();
+        var moves = new List<MoveRecord>();
         foreach (var move in moveDict)
         {
-            moves.Add(new Move { From = move.Key, To = move.Value });
+            moves.Add(new MoveRecord { From = move.Key, To = move.Value });
         }
         return moves;
     }
@@ -100,7 +100,7 @@ public record GameState
     public BoardSize BoardSize { get; set; } = null!;
 
     [JsonProperty("moves")]
-    public List<Move> Moves { get; set; } = null!;
+    public List<MoveRecord> Moves { get; set; } = null!;
 
     public string AsJson()
     {
@@ -123,7 +123,7 @@ public record BoardSize
 /// <summary>
 /// Represents a json-object of which moves a piece can make.
 /// </summary>
-public record Move
+public record MoveRecord
 {
     [JsonProperty("from")]
     public string From { get; set; } = null!;

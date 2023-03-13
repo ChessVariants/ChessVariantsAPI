@@ -10,6 +10,7 @@ public class Chessboard
     private readonly int rows;
     private readonly int cols;
     private readonly string[,] board;
+    private bool[,] hasMoved;
 
     private readonly Dictionary<string, Tuple<int, int>> coorToIndex;
     private readonly Dictionary<Tuple<int, int>, string> indexToCoor;
@@ -37,6 +38,11 @@ public class Chessboard
         get { return cols; }
     }
 
+    public bool[,] HasMoved
+    {
+        get { return hasMoved;}
+    }
+
     public Chessboard(int rows, int cols)
     {
         this.rows = rows;
@@ -45,6 +51,7 @@ public class Chessboard
         this.coorToIndex = initCoorToIndex();
         this.indexToCoor = initIndexToCoor();
         this.board = initBoard();
+        this.hasMoved = initHasMoved();
     }
 
     public Chessboard CopyBoard()
@@ -211,6 +218,25 @@ public class Chessboard
         }
     }
 
+    public bool HasPieceMoved(int row, int col)
+    {
+        if(validIndex(row,col))
+        {
+            return this.HasMoved[row,col];
+        }
+        return false;
+    }
+
+    public bool PieceHasMoved(int row, int col)
+    {
+        if(validIndex(row,col))
+        {
+            hasMoved[row,col] = true;
+            return true;
+        }
+        return false;
+    }
+
     /// <summary>
     /// Gets the piece occupying the requested square if the square is inside the bounds of the chessboard.
     /// </summary>
@@ -305,6 +331,19 @@ public class Chessboard
             }
         }
         return board;
+    }
+
+    private bool[,] initHasMoved()
+    {
+        var hasMovedBoard = new bool[this.rows, this.cols];
+        for(int i = 0; i < hasMovedBoard.GetLength(0); i++)
+        {
+            for(int j = 0; j < hasMovedBoard.GetLength(1); j++)
+            {
+                hasMovedBoard[i,j] = false;
+            }
+        }
+        return hasMovedBoard;
     }
 
     private bool validIndex(int row, int col)

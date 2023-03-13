@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 namespace ChessVariantsLogic;
-public interface IBoardState
+public interface MoveWorker
 {
 
     public GameEvent Move(string move);
@@ -17,5 +17,5 @@ public interface IBoardState
         set { }
     }
 
-    public IBoardState CopyBoardState();
+    public MoveWorker CopyBoardState();
 }

@@ -1,4 +1,4 @@
-﻿namespace ChessVariantsLogic.Predicates;
+﻿namespace ChessVariantsLogic.Rules.Predicates;
 
 /// <summary>
 /// Represents a logical operator which can be performed on <see cref="IPredicate"/> objects.
@@ -35,16 +35,16 @@ public class Operator : IPredicate
     /// Logically evaluates the two internal <see cref="IPredicate"/> objects by the supplied <see cref="Chessboard"/>s and <see cref="OperatorType"/>.
     /// </summary>
     /// <inheritdoc/>
-    public bool Evaluate(IBoardState thisBoardState, IBoardState nextBoardState)
+    public bool Evaluate(BoardTransition transition)
     {
         switch (_type)
         {
-            case OperatorType.AND: return _p.Evaluate(thisBoardState, nextBoardState) && _q.Evaluate(thisBoardState, nextBoardState);
-            case OperatorType.OR: return _p.Evaluate(thisBoardState, nextBoardState) || _q.Evaluate(thisBoardState, nextBoardState);
-            case OperatorType.IMPLIES: return !(_p.Evaluate(thisBoardState, nextBoardState)) || _q.Evaluate(thisBoardState, nextBoardState);
-            case OperatorType.XOR: return _p.Evaluate(thisBoardState, nextBoardState) ^ _q.Evaluate(thisBoardState, nextBoardState);
-            case OperatorType.EQUALS: return _p.Evaluate(thisBoardState, nextBoardState) == _q.Evaluate(thisBoardState, nextBoardState);
-            case OperatorType.NOT: return !(_p.Evaluate(thisBoardState, nextBoardState));
+            case OperatorType.AND: return _p.Evaluate(transition) && _q.Evaluate(transition);
+            case OperatorType.OR: return _p.Evaluate(transition) || _q.Evaluate(transition);
+            case OperatorType.IMPLIES: return !_p.Evaluate(transition) || _q.Evaluate(transition);
+            case OperatorType.XOR: return _p.Evaluate(transition) ^ _q.Evaluate(transition);
+            case OperatorType.EQUALS: return _p.Evaluate(transition) == _q.Evaluate(transition);
+            case OperatorType.NOT: return !_p.Evaluate(transition);
             default: return false;
         }
     }

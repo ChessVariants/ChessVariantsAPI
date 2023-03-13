@@ -1,4 +1,4 @@
-﻿namespace ChessVariantsLogic.Predicates;
+﻿namespace ChessVariantsLogic.Rules.Predicates.ChessPredicates;
 
 /// <summary>
 /// This predicate determines if how many pieces of a certain type are left in the game
@@ -39,9 +39,9 @@ public class PiecesLeft : IPredicate
     /// </summary>
     /// <inheritdoc/>
     /// <returns>The boolean value of how many pieces left there are compared to the internal <see cref="Comparator"/>.</returns>
-    public bool Evaluate(IBoardState thisBoardState, IBoardState nextBoardState)
+    public bool Evaluate(BoardTransition transition)
     {
-        IBoardState board = _state == BoardState.THIS ? thisBoardState : nextBoardState;
+        var board = _state == BoardState.THIS ? transition.ThisState : transition.NextState;
         int piecesLeft = Utils.FindPiecesOfType(board, _pieceIdentifier).Count();
         return CompareValue(piecesLeft);
     }

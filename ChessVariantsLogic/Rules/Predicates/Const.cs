@@ -1,4 +1,4 @@
-namespace ChessVariantsLogic.Predicates;
+namespace ChessVariantsLogic.Rules.Predicates;
 
 /// <summary>
 /// A predicate which always returns a constant value either true or false.
@@ -15,10 +15,11 @@ public class Const : IPredicate
     /// <summary>
     /// Returns the boolean value specified at creation.
     /// </summary>
-    /// <param name="thisBoardState">Irrelevant, only used to satisfy interface</param>
-    /// <param name="nextBoardState">Irrelevant, only used to satisfy interface</param>
+    /// <param name="transition"></param>
+    /// 
     /// <returns>the boolean value specified at creation.</returns>
-    public bool Evaluate(IBoardState thisBoardState, IBoardState nextBoardState)
+    /// 
+    public bool Evaluate(BoardTransition transition)
     {
         return _value;
     }

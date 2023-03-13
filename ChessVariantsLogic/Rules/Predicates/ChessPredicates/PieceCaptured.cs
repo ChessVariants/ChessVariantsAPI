@@ -1,4 +1,4 @@
-﻿namespace ChessVariantsLogic.Predicates;
+﻿namespace ChessVariantsLogic.Rules.Predicates.ChessPredicates;
 
 /// <summary>
 /// This predicate determines if a piece has been captured when transitioning to a new board state.
@@ -17,10 +17,10 @@ public class PieceCaptured : IPredicate
     /// </summary>
     /// <inheritdoc/>
     /// <returns>True if a piece was captured during transition from <paramref name="thisBoardState"/> to <paramref name="nextBoardState"/>.</returns>
-    public bool Evaluate(IBoardState thisBoardState, IBoardState nextBoardState)
+    public bool Evaluate(BoardTransition transition)
     {
-        int amountOfPieces = Utils.FindPiecesOfType(thisBoardState, _pieceIdentifier).Count();
-        int amountOfPiecesNextState = Utils.FindPiecesOfType(nextBoardState, _pieceIdentifier).Count();
+        int amountOfPieces = Utils.FindPiecesOfType(transition.ThisState, _pieceIdentifier).Count();
+        int amountOfPiecesNextState = Utils.FindPiecesOfType(transition.NextState, _pieceIdentifier).Count();
         int diff = amountOfPieces - amountOfPiecesNextState;
         return diff > 0;
     }

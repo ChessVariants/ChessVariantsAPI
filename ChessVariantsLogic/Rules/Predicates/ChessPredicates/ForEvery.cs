@@ -1,4 +1,4 @@
-namespace ChessVariantsLogic.Predicates;
+namespace ChessVariantsLogic.Rules.Predicates.ChessPredicates;
 
 using static ChessVariantsLogic.Game;
 
@@ -22,14 +22,15 @@ public class ForEvery : IPredicate
     /// <param name="_">Irrelevant since this method looks at every possible future board, not just one</param>
     /// <param name="thisBoard">The current board state</param>
     /// <returns>True if the internal rule holds for every possible move in the current board state for the internal player, otherwise false.</returns>
-    public bool Evaluate(IBoardState thisBoardState, IBoardState nextBoardState)
+    public bool Evaluate(BoardTransition transition)
     {
-        var possibleMoves = thisBoardState.GetAllValidMoves(_player);
+        var possibleMoves = transition.NextState.GetAllValidMoves(_player);
         foreach (var move in possibleMoves)
         {
-            var nextBoard = thisBoardState.CopyBoardState();
+            var nextBoard = transition.ThisState.CopyBoardState();
             nextBoard.Move(move);
-            bool ruleSatisfied = _rule.Evaluate(thisBoardState, nextBoard);
+            BoardTransition newTransition = new BoardTransition(transition.NextState, nextBoard, move);
+            bool ruleSatisfied = _rule.Evaluate(newTransition);
             if (!ruleSatisfied)
             {
                 return false;
